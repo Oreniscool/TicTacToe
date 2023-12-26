@@ -1,7 +1,6 @@
 const Gameboard = (function (){
     let elements = document.getElementsByClassName('element');
     let board= new Array();
-    
 
     const initiate = () =>{
         let tempList=[]
@@ -17,25 +16,22 @@ const Gameboard = (function (){
         return board;
     }
 
-    //Printing the board elements on the grid
+    //Printing the board elements on the grid(Courtesy of Saad)
     const print = () => {
-        for(let i=0;i<3;i++) {
-            for(let j=0;j<3;j++) {
-                for(let l=0;l<9;l++) {
-                    if(elements[l].dataset.x==i && elements[l].dataset.y==j) {
-                        elements[l].textContent=board[i][j];
-                        if(board[i][j]=='X') {
-                            elements[l].style="color:teal";
-                        }
-                        else if(board[i][j]=='O') {
-                            elements[l].style="color:#cc9600";
-                        }
-                        
-                    }
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const index = i * 3 + j;
+                const element = elements[index];
+                element.textContent = board[i][j];
+
+                if (board[i][j] === 'X') {
+                element.style.color = 'teal';
+                } else if (board[i][j] === 'O') {
+                element.style.color = 'orangered';
                 }
             }
         }
-    }
+    };
 
     const disable = () => {
         for(let i=0; i<9;i++) {
@@ -47,7 +43,36 @@ const Gameboard = (function (){
         window.location.reload();
     }
     const getElements = () => {return elements};
-    return {initiate, get, print, getElements, disable, reset};
+
+    const highlight = (indicator,i) =>{
+        if(indicator==="r") {
+            for(let j=0; j<3;j++) {
+                const index = i* 3 + j;
+                const element = elements[index];
+                element.classList.add("highlight");
+            }
+        }
+        else if(indicator==="c") {
+            for(let j=0; j<3;j++) {
+                const index = j* 3 + i;
+                const element = elements[index];
+                element.classList.add("highlight");
+            }
+        }
+        else if(indicator==="d") {
+            //reusing index as an indicator of the type of diagonal(0=normal&1=inverse)
+            elements[4].classList.add("highlight");
+            if(i==0) {
+                elements[0].classList.add("highlight");
+                elements[8].classList.add("highlight");
+            }
+            else if(i==1) {
+                elements[2].classList.add("highlight");
+                elements[6].classList.add("highlight");
+            }
+        }
+    }
+    return {initiate, get, print, getElements, disable, reset, highlight};
 })();
 
 
@@ -111,6 +136,7 @@ const gameFunctions = (function (){
                 }  
             }
             if(flag) {
+                Gameboard.highlight("r",i);
                 return flag;
             }
         }
@@ -124,6 +150,7 @@ const gameFunctions = (function (){
                 }
             }
             if(flag) {
+                Gameboard.highlight("c",i);
                 return flag;
             }
         }
@@ -137,6 +164,7 @@ const gameFunctions = (function (){
             }
         }
         if(flag) {
+            Gameboard.highlight("d",0);
             return flag;
         }
         for(let i=0; i<3; i++) {
@@ -147,6 +175,7 @@ const gameFunctions = (function (){
             }
         }
         if(flag) {
+            Gameboard.highlight("d",1);
             return flag;
         }
     }
@@ -182,19 +211,16 @@ const gameLogic = (position)=> {
                 Gameboard.disable();
             }
         }
-        if(round==8) {
-            Gameboard.disable();
-            infotext.textContent="It's a draw!";
-            return;
-        }
     gameFunctions.inrRound();
+    if(round==9) {
+        Gameboard.disable();
+        infotext.textContent="It's a draw!";
+        return;
+    }
     return;
 };
 
-const game= ()=> {
-    Gameboard.initiate();
-    Gameboard.print();
-    gameFunctions.addListeners();
-}
 
-game();
+Gameboard.initiate();
+Gameboard.print();
+gameFunctions.addListeners();

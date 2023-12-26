@@ -84,7 +84,12 @@ html, body {
     cursor: pointer;
     transition: transform 0.5s;
 }
+
 .credit:hover {
     transform: scale(1.2);
+}
+
+.highlight {
+    background-color: #72ff434b;
 }
 
