@@ -25,9 +25,9 @@ const Gameboard = (function (){
                 element.textContent = board[i][j];
 
                 if (board[i][j] === 'X') {
-                element.style.color = 'teal';
+                element.style.color = '#86a0e5';
                 } else if (board[i][j] === 'O') {
-                element.style.color = 'orangered';
+                element.style.color = '#8a1e36';
                 }
             }
         }
@@ -211,12 +211,12 @@ const gameLogic = (position)=> {
                 Gameboard.disable();
             }
         }
+        if(round==9) {
+            Gameboard.disable();
+            infotext.textContent="It's a draw!";
+            return;
+        }
     gameFunctions.inrRound();
-    if(round==9) {
-        Gameboard.disable();
-        infotext.textContent="It's a draw!";
-        return;
-    }
     return;
 };
 
