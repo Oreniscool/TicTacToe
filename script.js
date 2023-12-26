@@ -60,13 +60,11 @@ const gameFunctions = (function (){
     const placeX = (x,y) =>{
         board[x][y]='X';
         xOccupied.push([x,y]);
-        console.log(xOccupied);
     }
     //Places O on board
     const placeO = (x,y) =>{
         board[x][y]='O';
         oOccupied.push([x,y]);
-        console.log(oOccupied);
     }
     const disableButton = (button) => {
         button.classList.add("disabled-cursor");
@@ -164,7 +162,6 @@ const gameLogic = (position)=> {
     let oOccupied=gameFunctions.getOOccup();
     let round=gameFunctions.getRound();
     if (gameFunctions.find(xOccupied,position) || gameFunctions.find(oOccupied,position)) {
-        console.log("Already occupied");
         return;
     }    
         if(round%2==0) {
