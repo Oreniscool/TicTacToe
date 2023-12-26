@@ -190,6 +190,7 @@ const gameLogic = (position)=> {
     let xOccupied=gameFunctions.getXOccup();
     let oOccupied=gameFunctions.getOOccup();
     let round=gameFunctions.getRound();
+    let flag=0;
     if (gameFunctions.find(xOccupied,position) || gameFunctions.find(oOccupied,position)) {
         return;
     }    
@@ -199,6 +200,7 @@ const gameLogic = (position)=> {
             Gameboard.print();
             if(gameFunctions.checkWin("X")) {
                 infotext.textContent="X wins!";
+                flag=1;
                 Gameboard.disable();
             }
         }
@@ -208,10 +210,11 @@ const gameLogic = (position)=> {
             Gameboard.print();
             if(gameFunctions.checkWin("O")) {
                 infotext.textContent="O wins!";
+                flag=1;
                 Gameboard.disable();
             }
         }
-        if(round==9) {
+        if(round==8&&flag==0) {
             Gameboard.disable();
             infotext.textContent="It's a draw!";
             return;
