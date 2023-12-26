@@ -1,10 +1,13 @@
 const Gameboard = (function (){
-    let board = [];
+    let elements = document.getElementsByClassName('element');
+    let board= new Array();
+    
+
     const initiate = () =>{
         let tempList=[]
         for(let i=3;i>0;i--) {
             for(let j=3;j>0;j--) {
-                tempList.push("_");
+                tempList.push(" ");
             }
             board.push(tempList);
             tempList=[];
@@ -13,40 +16,91 @@ const Gameboard = (function (){
     const get = () => {
         return board;
     }
+
+    //Printing the board elements on the grid
     const print = () => {
         for(let i=0;i<3;i++) {
-            console.log(board[i]);
+            for(let j=0;j<3;j++) {
+                for(let l=0;l<9;l++) {
+                    if(elements[l].dataset.x==i && elements[l].dataset.y==j) {
+                        elements[l].textContent=board[i][j];
+                        if(board[i][j]=='X') {
+                            elements[l].style="color:teal";
+                        }
+                        else if(board[i][j]=='O') {
+                            elements[l].style="color:#cc9600";
+                        }
+                        
+                    }
+                }
+            }
         }
     }
-    return {initiate,get,print};
+
+    const disable = () => {
+        for(let i=0; i<9;i++) {
+            gameFunctions.disableButton(elements[i]);
+        }
+    }
+
+    const reset = () => {
+        window.location.reload();
+    }
+    const getElements = () => {return elements};
+    return {initiate, get, print, getElements, disable, reset};
 })();
 
 
 const gameFunctions = (function (){
     let board = Gameboard.get();
+    let round = 0;
+    let xOccupied= new Array();
+    let oOccupied= new Array();
+    //Places x on board
     const placeX = (x,y) =>{
         board[x][y]='X';
+        xOccupied.push([x,y]);
+        console.log(xOccupied);
     }
+    //Places O on board
     const placeO = (x,y) =>{
         board[x][y]='O';
+        oOccupied.push([x,y]);
+        console.log(oOccupied);
     }
-    const getPosition = () =>{
-        let x=prompt("Enter x positon: ");
-        let y=prompt("Enter y positon: ");
-        if(x<0 || x>=3 || y<0 ||y>=3) {
-            console.log("Enter correct integer values of x&y");
-            return getPosition();
+    const disableButton = (button) => {
+        button.classList.add("disabled-cursor");
+        button.replaceWith(button.cloneNode(true));
+    }
+    //Adds event listeners
+    const addListeners = () =>{
+        let elements = document.getElementsByClassName('element');
+        for(let i=0; i<9;i++) {
+            elements[i].addEventListener("click",(e)=> {
+                e.preventDefault();
+                gameLogic([elements[i].dataset.x,elements[i].dataset.y])});     
         }
-        return [x,y];
+        let reset = document.querySelector('.reset');
+        reset.addEventListener("click",()=>{Gameboard.reset()});
     }
+    //Finds match
     const find = (arr,pos) => {
         for(let i=0; i<arr.length; i++) {
             if(arr[i][0]==pos[0] && arr[i][1]==pos[1]) {
                 return true;
             }
-            return false;
         }
+        return false;
     }
+
+    //round functions
+    const getRound = () => {
+        return round;
+    }
+    const inrRound=() => {
+        round++;
+    }
+
     const checkWin = (char) => {
         //check rows
         let flag;
@@ -98,63 +152,52 @@ const gameFunctions = (function (){
             return flag;
         }
     }
-
-    return {placeO,placeX,getPosition,find,checkWin};
+    const getXOccup = () => {return xOccupied};
+    const getOOccup = () => {return oOccupied};
+    return {placeO,placeX,addListeners,find,checkWin,getRound,inrRound,disableButton,getXOccup, getOOccup};
 })();
 
 
-const gameLogic = ()=> {
-    Gameboard.initiate();
-    let xOccupied = [];
-    let oOccupied = [];
-    Gameboard.print();
-    let flag=0;
-    for(let i=0; i<9;i++) {
-        if(i%2==0) {
-            console.log("X's move");
-            let position;
-            do {
-                position= gameFunctions.getPosition();
-                if (gameFunctions.find(xOccupied,position) || gameFunctions.find(oOccupied,position)) {
-                    console.log("Already occupied");
-                    flag=1;
-                }
-                else {
-                    flag=0;
-                }
-            }
-            while(flag==1);
+const gameLogic = (position)=> {
+    let infotext=document.querySelector(".info");
+    let xOccupied=gameFunctions.getXOccup();
+    let oOccupied=gameFunctions.getOOccup();
+    let round=gameFunctions.getRound();
+    if (gameFunctions.find(xOccupied,position) || gameFunctions.find(oOccupied,position)) {
+        console.log("Already occupied");
+        return;
+    }    
+        if(round%2==0) {
+            infotext.textContent="O's move";
             gameFunctions.placeX(position[0],position[1]);
-            xOccupied.push(position);
             Gameboard.print();
             if(gameFunctions.checkWin("X")) {
-                console.log("X wins!")
-                break;
+                infotext.textContent="X wins!";
+                Gameboard.disable();
             }
         }
-        else if(i%2!=0) {
-            console.log("O's move");
-            do {
-                position= gameFunctions.getPosition();
-                if (gameFunctions.find(xOccupied,position) || gameFunctions.find(oOccupied,position)) {
-                    console.log("Already occupied");
-                    flag=1;
-                }
-                else {
-                    flag=0;
-                }
-            }
-            while(flag==1);
+        else if(round%2!=0) {
+            infotext.textContent="X's move";
             gameFunctions.placeO(position[0],position[1]);
-            oOccupied.push(position);
             Gameboard.print();
             if(gameFunctions.checkWin("O")) {
-                console.log("O wins!")
-                break;
+                infotext.textContent="O wins!";
+                Gameboard.disable();
             }
         }
-    }
-    console.log("Game over! Reload the page to restart.");
+        if(round==8) {
+            Gameboard.disable();
+            infotext.textContent="It's a draw!";
+            return;
+        }
+    gameFunctions.inrRound();
+    return;
 };
 
-gameLogic();
+const game= ()=> {
+    Gameboard.initiate();
+    Gameboard.print();
+    gameFunctions.addListeners();
+}
+
+game();
